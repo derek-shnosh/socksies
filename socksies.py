@@ -15,7 +15,9 @@ import argparse
 import yaml
 
 
-CONFIG_FILE = "./proxy-config.yml"
+CONFIG_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "proxy-config.yml"
+)
 
 
 def _proxy_search(proxy_name):
