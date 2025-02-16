@@ -16,7 +16,7 @@ import yaml
 
 
 CONFIG_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "proxy-config.yml"
+    os.path.dirname(os.path.realpath(__file__)), "proxy-config.yml"
 )
 
 
