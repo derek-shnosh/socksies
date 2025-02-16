@@ -1,0 +1,9 @@
+proxy1:
+  host: 172.31.0.51
+  port: 9051
+  identity_file: ~/.ssh/private_key
+
+proxy2:
+  host: 172.31.0.52
+  port: 9052
+  identity_file: ~/.ssh/private_key

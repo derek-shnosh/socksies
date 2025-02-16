@@ -15,8 +15,11 @@ import argparse
 import yaml
 
 
-CONFIG_FILE = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "proxy-config.yml"
+# Allow CONFIG_FILE to be overwritten for pytest, allow script to find
+# 'proxy-config.yml' where the script is located for symoblic links
+CONFIG_FILE = os.getenv(
+    "SOCKSIES_CONFIG",
+    os.path.join(os.path.dirname(os.path.realpath(__file__)), "proxy-config.yml")
 )
 
 
