@@ -21,13 +21,7 @@ A Python script for managing SOCKS proxies via SSH. It reads configurations from
 
 ### `requirements.txt`
 
-If you prefer using a `requirements.txt` file for easy installation in a virtual environment or on other systems, you can include:
-
-```
-PyYAML>=5.4
-```
-
-Then install with:
+A `requirements.txt` file is provided for easy installation in a virtual environment or on other systems.
 
 ```bash
 pip install -r requirements.txt
