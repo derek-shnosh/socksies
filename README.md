@@ -89,6 +89,36 @@ pip install -r requirements.txt
      python3.12 socksies.py ...
      ```
 
+### Running from Anywhere: Create a Symbolic Link
+
+If you want to call the `socksies.py` script from any directory without modifying your PATH, you can create a symbolic link in a directory that is already on your system’s PATH (for example, `~/local/bin`).
+
+1. **Ensure the Script is Executable**
+
+   Make sure `socksies.py` has the executable permission:
+   ```bash
+   chmod +x /path/to/repo/socksies.py
+   ```
+
+2. **Create a Symlink**
+
+   Create a symbolic link to the script by running:
+   ```bash
+   ln -s /path/to/repo/socksies.py .local/bin/socksies
+   ```
+
+3. **Run the Script**
+
+   Now you can run the script from anywhere by simply typing:
+   ```bash
+   socksies [subcommand] [arguments]
+   ```
+
+   For example:
+   ```bash
+   socksies connect jump1
+   ```
+
 ## License
 
 Use freely or adapt as needed for your own environment. Please consult your organization’s policies on SSH usage and networking.
