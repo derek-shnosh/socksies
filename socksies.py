@@ -121,6 +121,21 @@ def proxy_status(args):
             connected.append(proxy["name"])
 
     if connected:
+        # Verbose output.
+        if getattr(args, "verbose", False):
+            # Build the verbose command string
+            verbose_cmd = (
+                'ps aux | head -n 1 ; '
+                'ps aux | grep -P "ssh.-D.\\d.*" ; '
+                'echo "---" ; '
+                'ss -tlnp | head -n 1 ; '
+                'ss -tlnp | grep ssh'
+            )
+            print("Running verbose status command:")
+            subprocess.run(verbose_cmd, shell=True, check=False)
+            return
+
+        print()
         print("Currently connected proxies:")
         for name in connected:
             print(f"  - {name}")
@@ -244,6 +259,9 @@ def main():
     # Subcommand: status
     status_parser = subparsers.add_parser(
         "status", help="List any connected proxies", aliases=["s"]
+    )
+    status_parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose status output"
     )
     status_parser.set_defaults(func=proxy_status)
 
