@@ -70,6 +70,7 @@ pip install -r requirements.txt
    ./socksies.py disconnect all
 
    # Show status of active connections (alias: s)
+   # Accepts -v/--verbose for detailed output
    ./socksies.py status
    ```
 
