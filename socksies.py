@@ -48,7 +48,7 @@ def parse_proxy_config():
         # Extract fields with defaults if missing
         host = proxy_data.get("host", "--")
         port = proxy_data.get("port", "--")
-        identity_file = proxy_data.get("identity_file", "--")
+        identity_file = proxy_data.get("identity_file", "")
 
         proxies.append(
             {
