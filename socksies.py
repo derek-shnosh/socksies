@@ -177,8 +177,7 @@ def proxy_connect(args):
         "-q",
         "-C",
         "-f",
-        "-N",
-        proxy_host
+        "-i", proxy_id
     ]
 
     print(f"Establishing SOCKS proxy with: {proxy_name} ({proxy_host}:{proxy_port})")
