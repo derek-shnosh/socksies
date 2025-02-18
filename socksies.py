@@ -93,6 +93,26 @@ def proxy_info(args):
     print(f"  Identity File: {found_proxy['identity_file']}")
 
 
+def proxy_check(proxy):
+    """
+    Returns True if the proxy is currently connected (i.e. an SSH process
+    matching the connection command is found), otherwise False.
+    """
+
+    proxy_host = proxy["host"]
+    proxy_port = proxy["port"]
+    proxy_id = os.path.expanduser(proxy["identity_file"])
+
+    # Build the exact command substring that proxy_connect() used:
+    #   ssh -D {proxy_port} -N {proxy_host} -q -C -f -i {proxy_id}
+    pattern = f"ssh -D {proxy_port} -N {proxy_host} -q -C -f -i {proxy_id}"
+
+    # Search for any process whose command line contains the command pattern
+    search_cmd = ["pgrep", "-af", pattern]
+    proc = subprocess.run(search_cmd, capture_output=True, text=True, check=False)
+    return proc.returncode == 0
+
+
 def proxy_status(args):
     """
     Lists any proxies that appear to have an active SSH process, matching the
@@ -104,21 +124,8 @@ def proxy_status(args):
     connected = []
 
     for proxy in proxies:
-        proxy_host = proxy["host"]
-        proxy_port = proxy["port"]
-        proxy_id = os.path.expanduser(proxy["identity_file"])  # expand '~'
-
-        # Build the exact command substring that proxy_connect() used:
-        #   ssh -D {proxy_port} -i {proxy_id} -q -C -f -N {proxy_host}
-        pattern = f"ssh -D {proxy_port} -i {proxy_id} -q -C -f -N {proxy_host}"
-
-        # Search for any process whose command line contains the command pattern
-        search_cmd = ["pgrep", "-af", pattern]
-        proc = subprocess.run(search_cmd, capture_output=True, text=True, check=False)
-
-        # If returncode == 0, pgrep found at least one matching process
-        if proc.returncode == 0:
-            connected.append(proxy["name"])
+        if proxy_check(proxy):
+            connected.append(proxy)
 
     if connected:
         # Verbose output.
@@ -157,6 +164,12 @@ def proxy_connect(args):
         print(f"Error: Proxy '{proxy_name}' not found in {CONFIG_FILE}.")
         return
 
+    # Check to see if proxy is already connected
+    if proxy_check(found_proxy):
+        print(f"Proxy '{proxy_name}' is already connected.")
+        return
+
+    # Variables for connection string
     proxy_host = found_proxy["host"]
     proxy_port = found_proxy["port"]
     proxy_id = found_proxy["identity_file"]
@@ -173,7 +186,8 @@ def proxy_connect(args):
     connect_cmd = [
         "ssh",
         "-D", str(proxy_port),
-        "-i", proxy_id,
+        "-N",
+        proxy_host,
         "-q",
         "-C",
         "-f",
