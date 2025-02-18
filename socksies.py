@@ -67,9 +67,10 @@ def proxy_list(args):
     Lists all top-level proxy names from the YAML config.
     """
 
+    print("Listing configured Proxies:")
     proxies = parse_proxy_config()
     for proxy in proxies:
-        print(proxy["name"])
+        print(f"- {proxy['name']} ({proxy['host']}:{proxy['port']})")
 
 
 def proxy_info(args):
@@ -86,7 +87,6 @@ def proxy_info(args):
         return
 
     # Print the found proxy's details
-    print()
     print(f"Proxy: {found_proxy['name']}")
     print(f"  Host: {found_proxy['host']}")
     print(f"  Port: {found_proxy['port']}")
@@ -135,10 +135,9 @@ def proxy_status(args):
             subprocess.run(verbose_cmd, shell=True, check=False)
             return
 
-        print()
         print("Currently connected proxies:")
-        for name in connected:
-            print(f"  - {name}")
+        for proxy in connected:
+            print(f"- {proxy['name']} ({proxy['host']}:{proxy['port']})")
     else:
         print("No proxies appear to be connected.")
 
@@ -190,7 +189,7 @@ def proxy_connect(args):
         subprocess.run(connect_cmd, check=True)
         print(f"Connection established to {proxy_host} on SOCKS port {proxy_port}.")
     except subprocess.CalledProcessError as e:
-        print(f"Error: Failed to connect to '{proxy_name}' ({proxy_host}).\n{e}")
+        print(f"Error: Failed to connect to '{proxy_name}' ({proxy_host}:{proxy_port}).\n{e}")
 
 
 def proxy_disconnect(args):
@@ -204,12 +203,21 @@ def proxy_disconnect(args):
     # For "all", loop through each defined proxy & kill any active sessions
     if proxy_name == "all":
         proxies = parse_proxy_config()
+
+        # Set any_disconnected to False
         any_disconnected = False
+
+        print("Disconnecting from all configured proxies.")
+        # Attempt to disconnect from all configured proxies, set
+        # any_disconnected to True
         for proxy in proxies:
             if _disconnect_single_proxy(proxy):
                 any_disconnected = True
+
+        # If any_disconnected still False, print message
         if not any_disconnected:
             print("No active proxies were found to disconnect.")
+
         return
 
     # For individual, disconnect a single named proxy
@@ -230,10 +238,10 @@ def _disconnect_single_proxy(proxy_dict):
     proxy_name = proxy_dict["name"]
     proxy_host = proxy_dict["host"]
     proxy_port = proxy_dict["port"]
-    proxy_id   = os.path.expanduser(proxy_dict["identity_file"])
+    proxy_id   = os.path.expanduser(proxy_dict["identity_file"])  # expand '~'
 
     # Build the exact ssh command pattern used in proxy_connect()
-    ssh_cmd_pattern = f"ssh -D {proxy_port} -i {proxy_id} -q -C -f -N {proxy_host}"
+    ssh_cmd_pattern = f"ssh -D {proxy_port} -N {proxy_host} -q -C -f -i {proxy_id}"
 
     # Use 'pkill -f "pattern"' to find & kill processes matching that substring
     pkill_cmd = ["pkill", "-f", ssh_cmd_pattern]
@@ -241,7 +249,7 @@ def _disconnect_single_proxy(proxy_dict):
     # print(f"Attempting to disconnect '{proxy_name}' with pkill on: {ssh_cmd_pattern}")
     try:
         subprocess.run(pkill_cmd, check=True)
-        print(f"Disconnected proxy '{proxy_name}'.")
+        print(f"Disconnected proxy: {proxy_name} ({proxy_host}:{proxy_port})")
         return True
     except subprocess.CalledProcessError:
         # print(f"No active process found for '{proxy_name}'.")
