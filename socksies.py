@@ -153,7 +153,7 @@ def proxy_connect(args):
     """
     Establish an SSH SOCKS connection to the specified proxy name.
     Command syntax:
-        ssh -D {proxy_port} -i {proxy_identity} -q -C -f -N {proxy_host}
+        ssh -D {proxy_port} -N {proxy_host} -q -C -f -i {proxy_identity}
     """
 
     proxy_name = args.proxy_name
